@@ -1,5 +1,17 @@
-
 <style>
+:root {
+    color-scheme: dark;
+    --bg: #0b1020;
+    --panel: #121b2e;
+    --panel-light: #1a2740;
+    --text: #edf2ff;
+    --muted: #91a0bb;
+    --accent: #818cf8;
+    --purple: #9b8afb;
+    --green: #45d6a5;
+    --border: rgba(190, 204, 237, .12);
+}
+
 * {
     box-sizing: border-box;
 }
@@ -7,249 +19,946 @@
 body {
     margin: 0;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0b1020, #202045);
-    color: white;
+    padding: 20px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    color: var(--text);
+    background:
+        radial-gradient(ellipse at 10% 0%, #202650 0, transparent 42%),
+        radial-gradient(ellipse at 100% 100%, #211b45 0, transparent 36%),
+        var(--bg);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
 }
 
-.chat {
-    width: 95%;
-    max-width: 850px;
-    height: 90vh;
-    background: #141c2e;
-    border-radius: 20px;
+.chat-shell {
     display: flex;
     flex-direction: column;
+    width: min(100%, 1050px);
+    height: min(850px, calc(100vh - 40px));
+    min-height: 580px;
     overflow: hidden;
-    box-shadow: 0 15px 50px #0006;
+    position: relative;
+    isolation: isolate;
+    background: rgba(15, 23, 40, .94);
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    box-shadow: 0 30px 100px rgba(0, 0, 0, .35);
+    animation: shellEnter .5s ease both;
 }
 
-.header {
-    padding: 22px;
-    background: #1c2740;
-    border-bottom: 1px solid #34405a;
+.chat-shell * {
+    box-sizing: border-box;
 }
 
-.header h1 {
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 22px 28px;
+    background: rgba(20, 29, 48, .85);
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.brand-mark {
+    display: grid;
+    width: 47px;
+    height: 47px;
+    flex-shrink: 0;
+    place-items: center;
+    color: white;
+    background: linear-gradient(135deg, #818cf8, #8b5cf6);
+    border: 1px solid #ffffff25;
+    border-radius: 15px;
+    box-shadow: 0 7px 25px #7764e833;
+}
+
+.brand-mark svg {
+    display: block;
+    width: 25px;
+    height: 25px;
+}
+
+.brand h1 {
     margin: 0;
-    font-size: 25px;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -.6px;
+}
+
+.brand h1 span {
     color: #a5b4fc;
 }
 
-.header p {
-    margin: 8px 0 0;
-    color: #a1aec7;
-    font-size: 13px;
-}
-
-.usuario {
-    padding: 15px 22px;
-    background: #19243a;
-    border-bottom: 1px solid #34405a;
-}
-
-.usuario strong {
-    color: #c4b5fd;
-}
-
-.mensajes {
-    flex: 1;
-    padding: 22px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.mensaje {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 15px;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-    white-space: pre-wrap;
-}
-
-.propio {
-    align-self: flex-end;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.otro {
-    align-self: flex-start;
-    background: #26334d;
-    border-bottom-left-radius: 4px;
-}
-
-.nombre {
-    display: block;
+.brand p {
+    margin: 5px 0 0;
+    color: var(--muted);
     font-size: 11px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #d8d0ff;
 }
 
-.hora {
-    display: block;
-    font-size: 10px;
-    opacity: .7;
-    text-align: right;
-    margin-top: 6px;
-}
-
-.formulario {
-    padding: 18px;
-    background: #1c2740;
+.connection-status {
     display: flex;
-    gap: 12px;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 13px;
+    color: #c5d0e5;
+    background: #ffffff06;
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    font-size: 11px;
+    white-space: nowrap;
 }
 
-.formulario input {
+.status-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    background: #f4bc55;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px #f4bc5515;
+}
+
+.chat-shell.is-connected .status-dot {
+    background: var(--green);
+    box-shadow: 0 0 0 4px #45d6a51a;
+}
+
+.chat-shell.is-disconnected .status-dot {
+    background: #fb7185;
+    box-shadow: 0 0 0 4px #fb71851a;
+}
+
+.user-panel {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 22px 27px 0;
+    padding: 17px 19px;
+    background: linear-gradient(110deg, #818cf815, #9b8afb05);
+    border: 1px solid #9698ff25;
+    border-radius: 18px;
+    animation: riseIn .5s ease both;
+}
+
+.user-avatar {
+    position: relative;
+    display: grid;
+    width: 51px;
+    height: 51px;
+    flex-shrink: 0;
+    place-items: center;
+    overflow: hidden;
+    color: white;
+    background: linear-gradient(135deg, #a69bff, #6e5be5);
+    border: 2px solid #ffffff20;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 6px 20px #6e5be52c;
+}
+
+.avatar-online {
+    position: absolute;
+    right: 1px;
+    bottom: 1px;
+    width: 12px;
+    height: 12px;
+    background: var(--green);
+    border: 2px solid var(--panel);
+    border-radius: 50%;
+}
+
+.user-info {
     flex: 1;
     min-width: 0;
-    padding: 15px;
+}
+
+.eyebrow {
+    color: #a5a8ff;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.user-info h2 {
+    margin: 5px 0;
+    overflow-wrap: anywhere;
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.user-info p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.session-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 12px;
+    color: #c7c5ff;
+    background: #818cf810;
+    border: 1px solid #818cf824;
+    border-radius: 11px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.session-badge span {
+    color: #b5a5ff;
+}
+
+.conversation-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 26px 30px 15px;
+}
+
+.conversation-heading h3 {
+    margin: 6px 0 0;
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 11px;
+    color: #85edc5;
+    background: #45d6a50c;
+    border: 1px solid #45d6a522;
+    border-radius: 9px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.live-pulse {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.8s infinite;
+}
+
+.messages-area {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+    margin: 0 12px;
+    padding: 14px 19px 22px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #394664 transparent;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+}
+
+.messages-area::-webkit-scrollbar {
+    width: 5px;
+}
+
+.messages-area::-webkit-scrollbar-thumb {
+    background: #394664;
+    border-radius: 10px;
+}
+
+.conversation-date {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 2px 0 6px;
+    color: #7f8ca6;
+    font-size: 10px;
+    text-align: center;
+}
+
+.conversation-date::before,
+.conversation-date::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    width: 100%;
+    animation: messageEnter .3s ease both;
+}
+
+.message-own {
+    justify-content: flex-end;
+}
+
+.message-other {
+    justify-content: flex-start;
+}
+
+.message-avatar {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    place-items: center;
+    overflow: hidden;
+    color: #d1d4ff;
+    background: linear-gradient(135deg, #34415f, #242d47);
+    border: 1px solid #ffffff12;
     border-radius: 12px;
-    border: 1px solid #3d4d6d;
-    background: #111a2b;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-width: min(75%, 570px);
+    min-width: 0;
+}
+
+.message-own .message-content {
+    align-items: flex-end;
+}
+
+.message-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0 4px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.message-author {
+    color: #d3def2;
+    font-weight: 700;
+}
+
+.message-bubble {
+    padding: 12px 16px;
+    color: #e3eaf8;
+    background: linear-gradient(145deg, #1d2a42, #192439);
+    border: 1px solid #ffffff12;
+    border-radius: 5px 16px 16px 16px;
+    box-shadow: 0 5px 18px #0000000b;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    transition: border-color .2s, transform .2s;
+}
+
+.message-other .message-bubble:hover {
+    transform: translateY(-1px);
+    border-color: #9aa8d044;
+}
+
+.message-own .message-bubble {
     color: white;
-    font-size: 14px;
+    background: linear-gradient(135deg, #687df0, #8062e8);
+    border-color: #ffffff24;
+    border-radius: 16px 5px 16px 16px;
+    box-shadow: 0 7px 22px #7164e825;
+}
+
+.message-receipt {
+    padding: 0 4px;
+    color: #a5b4fc;
+    font-size: 10px;
+}
+
+.empty-state {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    padding: 18px;
+    text-align: center;
+    animation: riseIn .5s ease both;
+}
+
+.empty-icon {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 14px;
+    place-items: center;
+    color: #c4b5fd;
+    background: #818cf81a;
+    border: 1px solid #818cf82c;
+    border-radius: 20px;
+    font-size: 28px;
+}
+
+.empty-state h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+
+.empty-state p {
+    max-width: 270px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.composer-section {
+    padding: 17px 27px 18px;
+    background: linear-gradient(180deg, #111a2bdf, #111a2b);
+    border-top: 1px solid var(--border);
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px 4px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.typing-indicator[hidden] {
+    display: none;
+}
+
+.typing-dots {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.typing-dots i {
+    width: 5px;
+    height: 5px;
+    background: #a5a5ff;
+    border-radius: 50%;
+    animation: bounce .7s infinite alternate;
+}
+
+.typing-dots i:nth-child(2) {
+    animation-delay: .15s;
+}
+
+.typing-dots i:nth-child(3) {
+    animation-delay: .3s;
+}
+
+.composer {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 13px;
+    background: #1a253b;
+    border: 1px solid #9baad128;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px #00000012;
+    transition: border-color .25s, box-shadow .25s;
+}
+
+.composer:focus-within {
+    background: #1c2941;
+    border-color: #818cf8a6;
+    box-shadow: 0 0 0 4px #818cf812;
+}
+
+.composer-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.composer textarea {
+    display: block;
+    width: 100%;
+    min-height: 28px;
+    max-height: 120px;
+    padding: 3px 0 9px;
+    resize: none;
+    overflow-y: auto;
+    color: #f1f4ff;
+    background: transparent;
+    border: 0;
+    outline: none;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.composer textarea::placeholder {
+    color: #8290aa;
+}
+
+.composer textarea:focus-visible {
     outline: none;
 }
 
-.formulario input:focus {
-    border-color: #818cf8;
+.composer-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #7f8da8;
+    font-size: 10px;
 }
 
-.formulario button {
-    padding: 13px 23px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+.composer-hint {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.composer kbd {
+    padding: 3px 5px;
+    color: #bac6dc;
+    background: #ffffff08;
+    border: 1px solid #ffffff12;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 9px;
+}
+
+.hint-divider {
+    padding: 0 4px;
+    color: #53617b;
+}
+
+.character-count {
+    font-variant-numeric: tabular-nums;
+}
+
+.send-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-width: 110px;
+    height: 46px;
+    padding: 0 16px;
     color: white;
-    font-weight: bold;
+    background: linear-gradient(135deg, #818cf8, #765ce7);
+    border: 1px solid #ffffff22;
+    border-radius: 13px;
+    box-shadow: 0 6px 20px #7560e733;
     cursor: pointer;
+    transition: transform .2s, filter .2s, box-shadow .2s;
 }
 
-.formulario button:hover {
-    filter: brightness(1.15);
+.send-button svg {
+    display: block;
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+}
+
+.send-button:hover {
+    filter: brightness(1.12);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px #7560e74d;
+}
+
+.send-button:hover svg {
+    transform: translate(2px, -2px);
+}
+
+.send-button:active {
+    transform: scale(.97);
+}
+
+.send-button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.composer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 13px 4px 0;
+    color: #75839c;
+    font-size: 10px;
+}
+
+.secure-icon {
+    margin-right: 5px;
+    color: #a5a5ff;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@keyframes shellEnter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes messageEnter {
+    from { opacity: 0; transform: translateY(9px) scale(.99); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes riseIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    50% { opacity: .45; }
+}
+
+@keyframes bounce {
+    to { transform: translateY(-3px); opacity: .5; }
 }
 
 @media (max-width: 600px) {
-    .chat {
+    body {
+        padding: 0;
+    }
+
+    .chat-shell {
         width: 100%;
         height: 100vh;
         height: 100dvh;
+        min-height: 480px;
         border-radius: 0;
+        border: 0;
     }
 
-    .mensaje {
-        max-width: 88%;
+    .chat-header {
+        padding: 16px;
     }
 
-    .formulario {
+    .brand-mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+
+    .brand h1 {
+        font-size: 16px;
+    }
+
+    .brand p {
+        font-size: 10px;
+    }
+
+    .connection-status {
+        gap: 6px;
+        padding: 8px;
+        font-size: 10px;
+    }
+
+    .user-panel {
+        gap: 11px;
+        margin: 15px 12px 0;
+        padding: 12px;
+    }
+
+    .user-avatar {
+        width: 43px;
+        height: 43px;
+    }
+
+    .user-info h2 {
+        font-size: 14px;
+    }
+
+    .user-info p {
+        font-size: 10px;
+    }
+
+    .session-badge {
+        gap: 4px;
+        padding: 7px;
+        font-size: 10px;
+    }
+
+    .conversation-heading {
+        padding: 22px 17px 13px;
+    }
+
+    .messages-area {
+        margin: 0 4px;
+        padding: 12px;
+    }
+
+    .message-content {
+        max-width: 84%;
+    }
+
+    .composer-section {
+        padding: 13px;
+    }
+
+    .composer {
+        gap: 8px;
         padding: 10px;
     }
 
-    .formulario button {
-        padding: 12px;
+    .send-button {
+        min-width: 44px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+    }
+
+    .send-label {
+        display: none;
+    }
+
+    .composer-footer {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 380px) {
+    .brand {
+        gap: 8px;
+    }
+
+    .brand p {
+        display: none;
+    }
+
+    .connection-status {
+        font-size: 9px;
+    }
+
+    .session-badge {
+        font-size: 0;
+    }
+
+    .session-badge span {
+        font-size: 14px;
+    }
+
+    .composer-hint {
+        font-size: 9px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat-shell *,
+    .chat-shell *::before,
+    .chat-shell *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
     }
 }
 </style>
 
-<div class="chat">
+<section class="chat-shell">
 
-    <header class="header">
-        <h1>💬 ConversaLive</h1>
-        <p>Chat moderno en tiempo real</p>
+    <header class="chat-header">
+        <div class="brand">
+            <div class="brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-5.5 4v-4.3A2.5 2.5 0 0 1 4 13.5v-8Z"
+                        stroke="currentColor" stroke-width="1.7"
+                        stroke-linejoin="round"/>
+                    <path d="M8 8h8M8 11.5h5" stroke="currentColor"
+                        stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <div>
+                <h1>Conversa<span>Live</span></h1>
+                <p>Mensajería en tiempo real</p>
+            </div>
+        </div>
+
+        <div class="connection-status">
+            <span class="status-dot"></span>
+            <span id="connectionStatus">Esperando conexión</span>
+        </div>
     </header>
 
-    <div class="usuario">
-        Bienvenido:
-        <strong id="nombreUsuario">{{username}}</strong>
+    <section class="user-panel">
+        <div class="user-avatar">
+            <span>{{username}}</span>
+            <span class="avatar-online"></span>
+        </div>
 
-        {{#if admin}}
-            <span>⭐ Administrador</span>
-        {{else}}
-            <span>👤 Usuario</span>
-        {{/if}}
+        <div class="user-info">
+            <span class="eyebrow">SESIÓN ACTIVA</span>
+            <h2>{{username}}</h2>
+            <p>
+                {{#if admin}}
+                    Administrador de la conversación
+                {{else}}
+                    Participante de la conversación
+                {{/if}}
+            </p>
+        </div>
+
+        <div class="session-badge">
+            <span>✦</span>
+            Chat privado
+        </div>
+    </section>
+
+    <div class="conversation-heading">
+        <div>
+            <span class="eyebrow">CONVERSACIÓN</span>
+            <h3>Tu espacio de mensajes</h3>
+        </div>
+
+        <span class="live-badge">
+            <span class="live-pulse"></span>
+            LIVE
+        </span>
     </div>
 
-    <main class="mensajes" id="mensajes">
-        <div class="mensaje otro">
-            <span class="nombre">Sistema</span>
-            ¡Bienvenido al chat! 👋
-            <span class="hora">ConversaLive</span>
+    <main
+        class="messages-area"
+        id="messagesContainer"
+        aria-label="Mensajes de la conversación"
+        aria-live="polite"
+        aria-relevant="additions"
+    >
+        <div class="conversation-date" id="conversationDate">
+            <span>Inicio de la conversación</span>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">✧</div>
+            <h4>Todo comienza aquí</h4>
+            <p>Escribe tu primer mensaje y empieza la conversación.</p>
         </div>
     </main>
 
-    <form class="formulario" id="formulario">
-        <input
-            type="text"
-            id="textoMensaje"
-            placeholder="Escribe un mensaje..."
-            maxlength="2000"
-            autocomplete="off"
-            required
-        >
+    <footer class="composer-section">
 
-        <button type="submit">
-            Enviar ➤
-        </button>
-    </form>
+        <div class="typing-indicator" id="typingIndicator" hidden>
+            <span class="typing-dots"><i></i><i></i><i></i></span>
+            <span>Alguien está escribiendo...</span>
+        </div>
 
-</div>
+        <form id="chatForm" class="composer">
+            <div class="composer-main">
+                <label class="sr-only" for="messageInput">
+                    Escribe tu mensaje
+                </label>
+
+                <textarea
+                    id="messageInput"
+                    name="message"
+                    rows="1"
+                    maxlength="2000"
+                    placeholder="Escribe un mensaje..."
+                    autocomplete="off"
+                    required
+                ></textarea>
+
+                <div class="composer-tools">
+                    <span class="composer-hint">
+                        <kbd>Enter</kbd> para enviar
+                        <span class="hint-divider">·</span>
+                        <kbd>Shift + Enter</kbd> nueva línea
+                    </span>
+
+                    <span class="character-count" id="characterCount">
+                        0 / 2000
+                    </span>
+                </div>
+            </div>
+
+            <button
+                class="send-button"
+                id="sendButton"
+                type="submit"
+                aria-label="Enviar mensaje"
+                title="Enviar mensaje"
+            >
+                <span class="send-label">Enviar</span>
+
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M21 3 10.5 13.5"
+                        stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="m21 3-6.7 18-3.8-7.5L3 9.7 21 3Z"
+                        stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </form>
+
+        <div class="composer-footer">
+            <span><span class="secure-icon">⌑</span> Conversación en tiempo real</span>
+            <span>ConversaLive · Mensajería</span>
+        </div>
+    </footer>
+</section>
 
 <script>
 (() => {
-    const formulario = document.getElementById("formulario");
-    const input = document.getElementById("textoMensaje");
-    const mensajes = document.getElementById("mensajes");
-    const nombreElement = document.getElementById("nombreUsuario");
+    const input = document.getElementById("messageInput");
+    const counter = document.getElementById("characterCount");
 
-    const nombre = nombreElement.textContent.trim() || "Usuario";
+    if (!input || !counter) return;
 
-    function agregarMensaje(texto, autor, propio = false) {
-        const mensaje = document.createElement("div");
-        mensaje.className = "mensaje " + (propio ? "propio" : "otro");
+    function updateComposer() {
+        counter.textContent = `${input.value.length} / 2000`;
 
-        const etiquetaNombre = document.createElement("span");
-        etiquetaNombre.className = "nombre";
-        etiquetaNombre.textContent = autor;
-
-        const contenido = document.createElement("span");
-        contenido.textContent = texto;
-
-        const hora = document.createElement("span");
-        hora.className = "hora";
-        hora.textContent = new Date().toLocaleTimeString("es-CO", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-
-        mensaje.appendChild(etiquetaNombre);
-        mensaje.appendChild(contenido);
-        mensaje.appendChild(hora);
-
-        mensajes.appendChild(mensaje);
-        mensajes.scrollTop = mensajes.scrollHeight;
+        input.style.height = "auto";
+        input.style.height =
+            Math.min(input.scrollHeight, 120) + "px";
     }
 
-    formulario.addEventListener("submit", (evento) => {
-        evento.preventDefault();
+    input.addEventListener("input", updateComposer);
 
-        const texto = input.value.trim();
+    input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
 
-        if (!texto) return;
+            const form = document.getElementById("chatForm");
 
-        agregarMensaje(texto, nombre, true);
-
-        input.value = "";
-        input.focus();
+            if (form && input.value.trim()) {
+                form.requestSubmit();
+            }
+        }
     });
 })();
 </script>
+</escape>
