@@ -1,0 +1,255 @@
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0b1020, #202045);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat {
+    width: 95%;
+    max-width: 850px;
+    height: 90vh;
+    background: #141c2e;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 15px 50px #0006;
+}
+
+.header {
+    padding: 22px;
+    background: #1c2740;
+    border-bottom: 1px solid #34405a;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 25px;
+    color: #a5b4fc;
+}
+
+.header p {
+    margin: 8px 0 0;
+    color: #a1aec7;
+    font-size: 13px;
+}
+
+.usuario {
+    padding: 15px 22px;
+    background: #19243a;
+    border-bottom: 1px solid #34405a;
+}
+
+.usuario strong {
+    color: #c4b5fd;
+}
+
+.mensajes {
+    flex: 1;
+    padding: 22px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mensaje {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.propio {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.otro {
+    align-self: flex-start;
+    background: #26334d;
+    border-bottom-left-radius: 4px;
+}
+
+.nombre {
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #d8d0ff;
+}
+
+.hora {
+    display: block;
+    font-size: 10px;
+    opacity: .7;
+    text-align: right;
+    margin-top: 6px;
+}
+
+.formulario {
+    padding: 18px;
+    background: #1c2740;
+    display: flex;
+    gap: 12px;
+}
+
+.formulario input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #3d4d6d;
+    background: #111a2b;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+.formulario input:focus {
+    border-color: #818cf8;
+}
+
+.formulario button {
+    padding: 13px 23px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.formulario button:hover {
+    filter: brightness(1.15);
+}
+
+@media (max-width: 600px) {
+    .chat {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0;
+    }
+
+    .mensaje {
+        max-width: 88%;
+    }
+
+    .formulario {
+        padding: 10px;
+    }
+
+    .formulario button {
+        padding: 12px;
+    }
+}
+</style>
+
+<div class="chat">
+
+    <header class="header">
+        <h1>💬 ConversaLive</h1>
+        <p>Chat moderno en tiempo real</p>
+    </header>
+
+    <div class="usuario">
+        Bienvenido:
+        <strong id="nombreUsuario">{{username}}</strong>
+
+        {{#if admin}}
+            <span>⭐ Administrador</span>
+        {{else}}
+            <span>👤 Usuario</span>
+        {{/if}}
+    </div>
+
+    <main class="mensajes" id="mensajes">
+        <div class="mensaje otro">
+            <span class="nombre">Sistema</span>
+            ¡Bienvenido al chat! 👋
+            <span class="hora">ConversaLive</span>
+        </div>
+    </main>
+
+    <form class="formulario" id="formulario">
+        <input
+            type="text"
+            id="textoMensaje"
+            placeholder="Escribe un mensaje..."
+            maxlength="2000"
+            autocomplete="off"
+            required
+        >
+
+        <button type="submit">
+            Enviar ➤
+        </button>
+    </form>
+
+</div>
+
+<script>
+(() => {
+    const formulario = document.getElementById("formulario");
+    const input = document.getElementById("textoMensaje");
+    const mensajes = document.getElementById("mensajes");
+    const nombreElement = document.getElementById("nombreUsuario");
+
+    const nombre = nombreElement.textContent.trim() || "Usuario";
+
+    function agregarMensaje(texto, autor, propio = false) {
+        const mensaje = document.createElement("div");
+        mensaje.className = "mensaje " + (propio ? "propio" : "otro");
+
+        const etiquetaNombre = document.createElement("span");
+        etiquetaNombre.className = "nombre";
+        etiquetaNombre.textContent = autor;
+
+        const contenido = document.createElement("span");
+        contenido.textContent = texto;
+
+        const hora = document.createElement("span");
+        hora.className = "hora";
+        hora.textContent = new Date().toLocaleTimeString("es-CO", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        mensaje.appendChild(etiquetaNombre);
+        mensaje.appendChild(contenido);
+        mensaje.appendChild(hora);
+
+        mensajes.appendChild(mensaje);
+        mensajes.scrollTop = mensajes.scrollHeight;
+    }
+
+    formulario.addEventListener("submit", (evento) => {
+        evento.preventDefault();
+
+        const texto = input.value.trim();
+
+        if (!texto) return;
+
+        agregarMensaje(texto, nombre, true);
+
+        input.value = "";
+        input.focus();
+    });
+})();
+</script>
